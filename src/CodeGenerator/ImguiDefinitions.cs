@@ -49,14 +49,17 @@ namespace CodeGenerator
             }
 
             Variants = new Dictionary<string, MethodVariant>();
-            foreach (var jt in variantsJson.Children())
+            if (variantsJson != null)
             {
-                JProperty jp = (JProperty)jt;
-                ParameterVariant[] methodVariants = jp.Values().Select(jv =>
+                foreach (var jt in variantsJson.Children())
                 {
-                    return new ParameterVariant(jv["name"].ToString(), jv["type"].ToString(), jv["variants"].Select(s => s.ToString()).ToArray());
-                }).ToArray();
-                Variants.Add(jp.Name, new MethodVariant(jp.Name, methodVariants));
+                    JProperty jp = (JProperty)jt;
+                    ParameterVariant[] methodVariants = jp.Values().Select(jv =>
+                    {
+                        return new ParameterVariant(jv["name"].ToString(), jv["type"].ToString(), jv["variants"].Select(s => s.ToString()).ToArray());
+                    }).ToArray();
+                    Variants.Add(jp.Name, new MethodVariant(jp.Name, methodVariants));
+                }
             }
 
             var typeLocations = typesJson["locations"];

@@ -15,10 +15,20 @@ namespace CodeGenerator
     {
         static void Main(string[] args)
         {
-            string outputPath;
+            string libraryName;
             if (args.Length > 0)
             {
-                outputPath = args[0];
+                libraryName = args[0];
+            }
+            else
+            {
+                libraryName = "cimgui";
+            }
+
+            string outputPath;
+            if (args.Length > 1)
+            {
+                outputPath = args[1];
             }
             else
             {
@@ -28,16 +38,6 @@ namespace CodeGenerator
             if (!Directory.Exists(outputPath))
             {
                 Directory.CreateDirectory(outputPath);
-            }
-
-            string libraryName;
-            if (args.Length > 1)
-            {
-                libraryName = args[1];
-            }
-            else
-            {
-                libraryName = "cimgui";
             }
 
             string projectNamespace = libraryName switch
@@ -70,7 +70,7 @@ namespace CodeGenerator
             string dllName = libraryName switch
             {
                 "cimgui" => "cimgui",
-                "cimplot" => "cimplot",
+                "cimplot" => "cimgui",
                 "cimnodes" => "cimnodes",
                 "cimguizmo" => "cimguizmo",
                 _ => throw new NotImplementedException()
@@ -110,9 +110,10 @@ namespace CodeGenerator
                 using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, td.Name + ".gen.cs")))
                 {
                     writer.Using("System");
-                    writer.Using("System.Numerics");
-                    writer.Using("System.Runtime.CompilerServices");
                     writer.Using("System.Text");
+                    writer.Using("UnityEngine");
+                    writer.Using("Unity.Collections.LowLevel.Unsafe");
+
                     if (referencesImGui)
                     {
                         writer.Using("ImGuiNET");
@@ -181,7 +182,7 @@ namespace CodeGenerator
 
                             if (GetWrappedType(vectorElementType + "*", out string wrappedElementType))
                             {
-                                writer.WriteLine($"public ImPtrVector<{wrappedElementType}> {field.Name} => new ImPtrVector<{wrappedElementType}>(NativePtr->{field.Name}, Unsafe.SizeOf<{vectorElementType}>());");
+                                writer.WriteLine($"public ImPtrVector<{wrappedElementType}> {field.Name} => new ImPtrVector<{wrappedElementType}>(NativePtr->{field.Name}, UnsafeUtility.SizeOf<{vectorElementType}>());");
                             }
                             else
                             {
@@ -211,7 +212,7 @@ namespace CodeGenerator
                             }
                             else
                             {
-                                writer.WriteLine($"public ref {typeStr} {field.Name} => ref Unsafe.AsRef<{typeStr}>(&NativePtr->{field.Name});");
+                                writer.WriteLine($"public ref {typeStr} {field.Name} => ref UnsafeUtility.AsRef<{typeStr}>(&NativePtr->{field.Name});");
                             }
                         }
                     }
@@ -278,8 +279,9 @@ namespace CodeGenerator
             using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, $"{classPrefix}Native.gen.cs")))
             {
                 writer.Using("System");
-                writer.Using("System.Numerics");
                 writer.Using("System.Runtime.InteropServices");
+                writer.Using("UnityEngine");
+
                 if (referencesImGui)
                 {
                     writer.Using("ImGuiNET");
@@ -350,9 +352,10 @@ namespace CodeGenerator
             using (CSharpCodeWriter writer = new CSharpCodeWriter(Path.Combine(outputPath, $"{classPrefix}.gen.cs")))
             {
                 writer.Using("System");
-                writer.Using("System.Numerics");
                 writer.Using("System.Runtime.InteropServices");
                 writer.Using("System.Text");
+                writer.Using("UnityEngine");
+
                 if (referencesImGui)
                 {
                     writer.Using("ImGuiNET");
