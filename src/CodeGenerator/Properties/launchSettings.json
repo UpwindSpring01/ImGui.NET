@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "CodeGenerator-cimgui": {
+      "commandName": "Project",
+      "commandLineArgs": "cimgui"
+    },
+    "codeGenerator-cimplot": {
+      "commandName": "Project",
+      "commandLineArgs": "cimplot"
+    }
+  }
+}
